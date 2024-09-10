@@ -16,6 +16,10 @@
 # Visual LiveBindings file. Added in Delphi XE2.
 # Uncomment this if you are not using LiveBindings Designer.
 #*.vlb
+
+Win32/Debug/
+_history/
+
 #
 # Deployment Manager configuration file for your project. Added in Delphi XE2.
 # Uncomment this if it is not mobile development and you do not use remote debug feature.
