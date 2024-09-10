@@ -1,0 +1,43 @@
+unit LoginForm;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, ADODB, Data.DB;
+
+type
+  TForm3 = class(TForm)
+    Label1: TLabel;
+    Label2: TLabel;
+    EditLogin: TEdit;
+    EditPassword: TEdit;
+    ButtonLogin: TButton;
+    ADOConnection1: TADOConnection;
+    procedure ButtonLoginClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form3: TForm3;
+
+implementation
+
+{$R *.dfm}
+
+procedure TForm3.ButtonLoginClick(Sender: TObject);
+var
+  ADOQuery: TADOQuery;
+  SQLText: string;
+  Username, BanReason: string;
+  Status, PowerLevel: Integer;
+begin
+ADOQuery := TADOQuery.Create(nil);
+
+
+end;
+
+end.

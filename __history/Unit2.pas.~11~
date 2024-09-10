@@ -1,0 +1,125 @@
+unit Unit2;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Data.DB, Data.Win.ADODB,
+  Vcl.Grids, Vcl.DBGrids, UserData, AccountCreation, Vcl.ExtCtrls;
+
+type
+  TForm2 = class(TForm)
+    DBGrid1: TDBGrid;
+    ComboBoxAdminMenuPowerLevel: TComboBox;
+    ComboBoxAdminMenuStatus: TComboBox;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    DataSource1: TDataSource;
+    ADOQuery1: TADOQuery;
+    ADOConnection1: TADOConnection;
+    ADOQuery1PowerLevelText: TStringField;
+    ADOQuery1StatusText: TStringField;
+    ADOQuery1ID: TAutoIncField;
+    ADOQuery1Username: TWideStringField;
+    ADOQuery1Name: TWideStringField;
+    ADOQuery1Surname: TWideStringField;
+    ADOQuery1Patronymic: TWideStringField;
+    ADOQuery1PowerLevel: TIntegerField;
+    ADOQuery1Status: TIntegerField;
+    MemoBanreason: TMemo;
+    ButtonAdminApply: TButton;
+    ButtonAdminAccCreate: TButton;
+    LabelAdminLoginStatus: TLabel;
+    ButtonAdminDeleteUser: TButton;
+    Panel1: TPanel;
+    LabelAdminMenuCurrentSelected: TLabel;
+    procedure ADOQuery1CalcFields(DataSet: TDataSet);
+    procedure FormCreate(Sender: TObject);
+    procedure ButtonAdminAccCreateClick(Sender: TObject);
+    function EllipsizeText(const Text: string; MaxWidth: Integer; Font: TFont): string;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form2: TForm2;
+
+implementation
+
+{$R *.dfm}
+
+
+function TForm2.EllipsizeText(const Text: string; MaxWidth: Integer; Font: TFont): string;
+var
+  TextWidth: Integer;
+  TempLabel: TLabel;
+begin
+  TempLabel := TLabel.Create(nil);
+  try
+    TempLabel.Font.Assign(Font);
+    TempLabel.AutoSize := False;
+    TempLabel.Width := MaxWidth;
+    TempLabel.WordWrap := False;
+
+    if TempLabel.Canvas.TextWidth(Text) <= MaxWidth then
+      Result := Text
+    else
+    begin
+      Result := Text;
+      repeat
+        Result := Copy(Result, 1, Length(Result) - 1);
+        TempLabel.Caption := Result + '...';
+      until TempLabel.Canvas.TextWidth(TempLabel.Caption) <= MaxWidth;
+    end;
+  finally
+    TempLabel.Free;
+  end;
+end;
+
+procedure TForm2.ADOQuery1CalcFields(DataSet: TDataSet);
+begin
+  case ADOQuery1.FieldByName('PowerLevel').AsInteger of
+    0: ADOQuery1.FieldByName('PowerLevelText').AsString := 'Гость';
+    1: ADOQuery1.FieldByName('PowerLevelText').AsString := 'Стандартный';
+    2: ADOQuery1.FieldByName('PowerLevelText').AsString := 'Административный';
+  else
+    ADOQuery1.FieldByName('PowerLevelText').AsString := 'Неизвестно';
+  end;
+
+  case ADOQuery1.FieldByName('Status').AsInteger of
+    0: ADOQuery1.FieldByName('StatusText').AsString := 'Неактивен';
+    1: ADOQuery1.FieldByName('StatusText').AsString := 'Активен';
+    2: ADOQuery1.FieldByName('StatusText').AsString := 'Заблокирован';
+  else
+    ADOQuery1.FieldByName('StatusText').AsString := 'Неизвестно';
+  end;
+end;
+
+
+procedure TForm2.ButtonAdminAccCreateClick(Sender: TObject);
+var
+    AccountForm: TForm4;
+begin
+  AccountForm := TForm4.Create(Self);
+  try
+    AccountForm.ShowModal;
+  finally
+     AccountForm.Free;
+  end;
+end;
+
+procedure TForm2.FormCreate(Sender: TObject);
+begin
+  LabelAdminLoginStatus.Caption := 'Пользователь: ' + CurrentUser.Username;
+  ComboBoxAdminMenuStatus.Items.AddObject('Неактивен', TObject(0));
+  ComboBoxAdminMenuStatus.Items.AddObject('Активен', TObject(1));
+
+  ComboBoxAdminMenuPowerLevel.Items.AddObject('Гость', TObject(0));
+  ComboBoxAdminMenuPowerLevel.Items.AddObject('Стандартный', TObject(1));
+  ComboBoxAdminMenuPowerLevel.Items.AddObject('Администратор', TObject(2));
+end;
+
+end.

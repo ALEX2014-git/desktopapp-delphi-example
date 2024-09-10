@@ -1,0 +1,183 @@
+unit Unit1;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Data.DB, Data.Win.ADODB,
+  Vcl.Grids, Vcl.DBGrids, Unit2, UserData, LoginForm;
+
+
+
+type
+  TForm1 = class(TForm)
+    DBGrid1: TDBGrid;
+    DataSource1: TDataSource;
+    Button_AdminMenu: TButton;
+    ADOConnection1: TADOConnection;
+    ADOQuery1: TADOQuery;
+    LabelLogin: TLabel;
+    LabelLoginStatus: TLabel;
+    LabelLogout: TLabel;
+    ADOQuery1StatusText: TStringField;
+    ADOQuery1ID: TAutoIncField;
+    ADOQuery1Username: TWideStringField;
+    ADOQuery1PowerLevel: TIntegerField;
+    ADOQuery1Status: TIntegerField;
+    ADOQuery1Name: TWideStringField;
+    ADOQuery1Surname: TWideStringField;
+    ADOQuery1Patronymic: TWideStringField;
+    ADOQuery1PowerLevelText: TStringField;
+    procedure Button_AdminMenuClick(Sender: TObject);
+    procedure LabelLoginClick(Sender: TObject);
+    procedure LabelLogoutClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure ADOQuery1CalcFields(DataSet: TDataSet);
+    procedure LoadDataToGrid;
+    procedure UnloadDataFromGrid;
+    procedure CheckUserStatus;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+
+
+
+var
+  Form1: TForm1;
+
+
+implementation
+
+{$R *.dfm}
+
+procedure TForm1.ADOQuery1CalcFields(DataSet: TDataSet);
+begin
+   // Преобразование PowerLevel в текст
+  case ADOQuery1.FieldByName('PowerLevel').AsInteger of
+    0: ADOQuery1.FieldByName('PowerLevelText').AsString := 'Гость';
+    1: ADOQuery1.FieldByName('PowerLevelText').AsString := 'Стандартный';
+    2: ADOQuery1.FieldByName('PowerLevelText').AsString := 'Административный';
+  else
+    ADOQuery1.FieldByName('PowerLevelText').AsString := 'Неизвестно';
+  end;
+
+  // Преобразование Status в текст
+  case ADOQuery1.FieldByName('Status').AsInteger of
+    0: ADOQuery1.FieldByName('StatusText').AsString := 'Неактивен';
+    1: ADOQuery1.FieldByName('StatusText').AsString := 'Активен';
+    2: ADOQuery1.FieldByName('StatusText').AsString := 'Заблокирован';
+  else
+    ADOQuery1.FieldByName('StatusText').AsString := 'Неизвестно';
+  end;
+
+end;
+
+procedure TForm1.Button_AdminMenuClick(Sender: TObject);
+var
+  NewForm: TForm2;
+begin
+if not CurrentUser.IsAuthenticated then
+begin
+  ShowMessage('Вы должны быть авторизированны для доступа к этой функции!');
+  Exit;
+end;
+if CurrentUser.PowerLevel <> 2 then
+begin
+  ShowMessage('У вас нет прав доступа к этой функции.');
+  Exit;
+end;
+
+  NewForm := TForm2.Create(Self);
+  try
+    NewForm.ShowModal;
+    finally
+    NewForm.Free;
+  end;
+
+end;
+
+procedure TForm1.CheckUserStatus;
+begin
+  if (CurrentUser.IsAuthenticated) and (CurrentUser.PowerLevel > -1) then
+  begin
+    LoadDataToGrid;
+    end
+    else
+    begin
+    ShowMessage('Загрузка данных не была успешна. У вас недостаточно прав для просмотра этой информации.');
+  end;
+end;
+
+
+procedure TForm1.LoadDataToGrid;
+begin
+  DBGrid1.Columns.Clear;
+  ADOQuery1.SQL.Text := 'SELECT ID, Username, PowerLevel, Status, Name, Surname, Patronymic FROM user_data';
+  ADOQuery1.Open;
+  DataSource1.Enabled := true;
+  end;
+
+  procedure TForm1.UnloadDataFromGrid;
+begin
+  ADOQuery1.Close;
+  DataSource1.Enabled := False;
+  DBGrid1.Columns.Clear;
+  end;
+
+
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+    CurrentUser.IsAuthenticated := false;
+    CurrentUser.Username := '';
+    CurrentUser.PowerLevel := -1;
+end;
+
+procedure TForm1.LabelLoginClick(Sender: TObject);
+var
+    LoginForm: TForm3;
+begin
+  LoginForm := TForm3.Create(Self);
+  try
+    if LoginForm.ShowModal = mrOk then
+    begin
+      CurrentUser.Username := LoginForm.LoggedUser;
+      CurrentUser.PowerLevel := LoginForm.UserPowerLevel;
+      CurrentUser.IsAuthenticated := true;
+      LabelLoginStatus.Caption := 'Пользователь: ' + LoginForm.LoggedUser;
+      LabelLoginStatus.Visible := true;
+      LabelLogin.Visible := false;
+      LabelLogin.Enabled := false;
+      LabelLogout.Enabled := true;
+      LabelLogout.Visible := true;
+      if CurrentUser.PowerLevel = 2 then
+      begin
+        Button_AdminMenu.Visible := true;
+        Button_AdminMenu.Enabled := true;
+        CheckUserStatus;
+      end;
+    end;
+  finally
+    LoginForm.Free;
+  end;
+end;
+
+procedure TForm1.LabelLogoutClick(Sender: TObject);
+begin
+    UnloadDataFromGrid;
+    CurrentUser.IsAuthenticated := false;
+    CurrentUser.Username := '';
+    CurrentUser.PowerLevel := -1;
+    LabelLogout.Enabled := false;
+    LabelLogout.Visible := false;
+    LabelLoginStatus.Caption := 'Вход не выполнен';
+    LabelLoginStatus.Visible := false;
+    LabelLogin.Visible := true;
+    LabelLogin.Enabled := true;
+    Button_AdminMenu.Visible := false;
+    Button_AdminMenu.Enabled := false;
+end;
+
+end.

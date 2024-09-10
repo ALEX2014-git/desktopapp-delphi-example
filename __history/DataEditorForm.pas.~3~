@@ -1,0 +1,41 @@
+unit DataEditorForm;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, Vcl.Grids, Vcl.DBGrids,
+  Data.Win.ADODB, Vcl.StdCtrls;
+
+type
+  TForm5 = class(TForm)
+    DBGrid1: TDBGrid;
+    ADOConnection1: TADOConnection;
+    ADOQuery1: TADOQuery;
+    DataSource1: TDataSource;
+    EditDate: TEdit;
+    LabelDate: TLabel;
+    LabelRequesterName: TLabel;
+    EditRequesterName: TEdit;
+    LabelStatus: TLabel;
+    ComboBoxStatus: TComboBox;
+    ComboBoxType: TComboBox;
+    LabelType: TLabel;
+    MemoDescription: TMemo;
+    LabelDescription: TLabel;
+    ButtonDataChange: TButton;
+    ButtonDataDelete: TButton;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form5: TForm5;
+
+implementation
+
+{$R *.dfm}
+
+end.

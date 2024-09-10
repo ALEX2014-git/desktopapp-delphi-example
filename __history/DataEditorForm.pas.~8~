@@ -1,0 +1,118 @@
+unit DataEditorForm;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, Vcl.Grids, Vcl.DBGrids,
+  Data.Win.ADODB, Vcl.StdCtrls;
+
+type
+  TForm5 = class(TForm)
+    DBGrid1: TDBGrid;
+    ADOConnection1: TADOConnection;
+    ADOQuery1: TADOQuery;
+    DataSource1: TDataSource;
+    EditDate: TEdit;
+    LabelDate: TLabel;
+    LabelRequesterName: TLabel;
+    EditRequesterName: TEdit;
+    LabelStatus: TLabel;
+    ComboBoxStatus: TComboBox;
+    ComboBoxType: TComboBox;
+    LabelType: TLabel;
+    MemoDescription: TMemo;
+    LabelDescription: TLabel;
+    ButtonDataChange: TButton;
+    ButtonDataDelete: TButton;
+    ADOQuery1description: TWideMemoField;
+    ADOQuery1id: TAutoIncField;
+    ADOQuery1request_date: TDateField;
+    ADOQuery1requester_name: TWideStringField;
+    ADOQuery1request_type: TIntegerField;
+    ADOQuery1status: TWideStringField;
+    ADOQuery1type_text: TStringField;
+    ADOQuery1status_text: TStringField;
+    procedure DBGrid1CellClick(Column: TColumn);
+    procedure FormCreate(Sender: TObject);
+    procedure ADOQuery1descriptionGetText(Sender: TField; var Text: string;
+      DisplayText: Boolean);
+    procedure ADOQuery1CalcFields(DataSet: TDataSet);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form5: TForm5;
+
+implementation
+
+{$R *.dfm}
+
+procedure TForm5.ADOQuery1CalcFields(DataSet: TDataSet);
+begin
+   case ADOQuery1.FieldByName('request_type').AsInteger of
+    0: ADOQuery1type_text.AsString := 'Технический запрос';
+    1: ADOQuery1type_text.AsString := 'Административный запрос';
+    2: ADOQuery1type_text.AsString := 'Общий запрос';
+    else
+      ADOQuery1type_text.AsString := 'Неизвестный тип';
+  end;
+
+  // Преобразование status из числа в текст
+  case ADOQuery1.FieldByName('status').AsInteger of
+    0: ADOQuery1status_text.AsString := 'Не обработан';
+    1: ADOQuery1status_text.AsString := 'В процессе';
+    2: ADOQuery1status_text.AsString := 'Завершён';
+    else
+      ADOQuery1status_text.AsString := 'Неизвестный статус';
+  end;
+end;
+
+procedure TForm5.ADOQuery1descriptionGetText(Sender: TField; var Text: string;
+  DisplayText: Boolean);
+begin
+  if Sender.IsNull then
+  begin
+    Exit;
+    end
+  else
+    Text := Copy(Sender.AsString, 1, 50);
+end;
+
+procedure TForm5.DBGrid1CellClick(Column: TColumn);
+var
+  DBStatus, DBRequestType: Integer;
+begin
+  if ADOQuery1.FieldByName('id').IsNull then
+  begin
+    Exit;
+  end;
+
+  EditDate.Text := ADOQuery1.FieldByName('request_date').AsString;
+  EditRequesterName.Text := ADOQuery1.FieldByName('requester_name').AsString;
+
+  DBStatus := ADOQuery1.FieldByName('status').AsInteger;
+  DBRequestType := ADOQuery1.FieldByName('request_type').AsInteger;
+
+  ComboBoxStatus.ItemIndex := ComboBoxStatus.Items.IndexOfObject(TObject(DBStatus));
+  ComboBoxType.ItemIndex := ComboBoxType.Items.IndexOfObject(TObject(DBRequestType));
+
+  MemoDescription.Text := ADOQuery1.FieldByName('description').AsString;
+end;
+
+procedure TForm5.FormCreate(Sender: TObject);
+begin
+  ComboBoxStatus.Items.AddObject('Не обработан', TObject(0));
+  ComboBoxStatus.Items.AddObject('В процессе', TObject(1));
+  ComboBoxStatus.Items.AddObject('Закрыт', TObject(2));
+
+  ComboBoxType.Items.AddObject('Технический запрос', TObject(0));
+  ComboBoxType.Items.AddObject('Административнай запрос', TObject(1));
+  ComboBoxType.Items.AddObject('Общий запрос', TObject(2));
+
+end;
+
+end.
