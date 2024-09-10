@@ -2,18 +2,16 @@
 Desktop application made using Delphi 12 Community Edition
 
 This application uses SQL Server as a database holder provider for it's work.
-It requires delphi_example database as a parent database.
-You can use script below to create database and it's tables for SQL Server.
+It requires delphi_app database as a parent database.
+You can use script below to create database and it's tables for a particular SQL Server instance, but you'll still need to manually update connection string settings inside an app.
 ```
-USE [master]
-GO
-/****** Object:  Database [delphi_app]    Script Date: 10.09.2024 16:43:38 ******/
+/****** Object:  Database [delphi_app]    Script Date: 10.09.2024 17:02:23 ******/
 CREATE DATABASE [delphi_app]
  CONTAINMENT = NONE
  ON  PRIMARY 
-( NAME = N'delphi_app', FILENAME = N'E:\Microsoft SQL Server\MSSQL16.SQLEXPRESS\MSSQL\DATA\delphi_app.mdf' , SIZE = 8192KB , MAXSIZE = UNLIMITED, FILEGROWTH = 65536KB )
+( NAME = N'delphi_app', SIZE = 8192KB , MAXSIZE = UNLIMITED, FILEGROWTH = 65536KB )
  LOG ON 
-( NAME = N'delphi_app_log', FILENAME = N'E:\Microsoft SQL Server\MSSQL16.SQLEXPRESS\MSSQL\DATA\delphi_app_log.ldf' , SIZE = 8192KB , MAXSIZE = 2048GB , FILEGROWTH = 65536KB )
+( NAME = N'delphi_app_log', SIZE = 8192KB , MAXSIZE = 2048GB , FILEGROWTH = 65536KB )
  WITH CATALOG_COLLATION = DATABASE_DEFAULT, LEDGER = OFF
 GO
 ALTER DATABASE [delphi_app] SET COMPATIBILITY_LEVEL = 160
@@ -87,9 +85,7 @@ ALTER DATABASE [delphi_app] SET QUERY_STORE = ON
 GO
 ALTER DATABASE [delphi_app] SET QUERY_STORE (OPERATION_MODE = READ_WRITE, CLEANUP_POLICY = (STALE_QUERY_THRESHOLD_DAYS = 30), DATA_FLUSH_INTERVAL_SECONDS = 900, INTERVAL_LENGTH_MINUTES = 60, MAX_STORAGE_SIZE_MB = 1000, QUERY_CAPTURE_MODE = AUTO, SIZE_BASED_CLEANUP_MODE = AUTO, MAX_PLANS_PER_QUERY = 200, WAIT_STATS_CAPTURE_MODE = ON)
 GO
-USE [delphi_app]
-GO
-/****** Object:  Table [dbo].[requests]    Script Date: 10.09.2024 16:43:38 ******/
+/****** Object:  Table [dbo].[requests]    Script Date: 10.09.2024 17:02:23 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -107,7 +103,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[user_data]    Script Date: 10.09.2024 16:43:38 ******/
+/****** Object:  Table [dbo].[user_data]    Script Date: 10.09.2024 17:02:23 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -131,8 +127,6 @@ GO
 ALTER TABLE [dbo].[user_data] ADD  DEFAULT ((0)) FOR [PowerLevel]
 GO
 ALTER TABLE [dbo].[user_data] ADD  DEFAULT ((0)) FOR [Status]
-GO
-USE [master]
 GO
 ALTER DATABASE [delphi_app] SET  READ_WRITE 
 GO
