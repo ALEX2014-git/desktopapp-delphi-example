@@ -1,7 +1,7 @@
 # desktopapp-delphi-example
 Desktop application made using Delphi 12 Community Edition
 
-This application uses SQL Server as a database holder provider for it's work.
+This application uses SQL Server as a database provider for it's work.
 It requires delphi_app database as a parent database.
 You can use script below to create database and it's tables for a particular SQL Server instance, but you'll still need to manually update connection string settings inside an app.
 ```
